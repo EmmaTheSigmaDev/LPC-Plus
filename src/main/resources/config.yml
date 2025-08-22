@@ -1,4 +1,4 @@
-# LPC Configuration
+# LPC+ Configuration
 # Please read the https://luckperms.net/wiki/Prefixes,-Suffixes-&-Meta before you set up.
 #
 # Placeholders:
@@ -22,3 +22,5 @@ chat-format: "{prefix}{name}&r: {message}"
 group-formats:
 #  default: "[default] {name}&r: {message}"
 #  admin: "[admin] {name}&r: {message}"
+
+allow-minimessage-in-formats: true

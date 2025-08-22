@@ -86,8 +86,13 @@ public final class LPC extends JavaPlugin implements Listener {
 		return ChatColor.translateAlternateColorCodes('&', message);
 	}
 
-	private String translateHexColorCodes(final String message) {
-		final char colorChar = ChatColor.COLOR_CHAR;
+		// --- Format parsing (MiniMessage OR Legacy) ---
+		Component formatComponent;
+		if (format.contains("<")) {
+			formatComponent = miniMessage.deserialize(format);
+		} else {
+			formatComponent = legacySerializer.deserialize(format);
+		}
 
 		final Matcher matcher = HEX_PATTERN.matcher(message);
 		final StringBuffer buffer = new StringBuffer(message.length() + 4 * 8);

@@ -13,9 +13,9 @@ chat-format: "<gray>{prefix}<green>{name}</green>&r: {message}"
 group-formats:
   default: "<white>{prefix}{name}&r: {message}"
   admin: "<bold><gradient:red:yellow>{prefix}{name}&r</gradient>: {message}</bold>"
-  mod: "<gradient:blue:dark_blue>{prefix}{name}&r</gradient>: {message}"
-  vip: "<gold>{prefix}{name}&r: {message}</gold>"
-  helper: "<aqua>{prefix}{name}&r: {message}</aqua>"
+  #mod: "<gradient:blue:dark_blue>{prefix}{name}&r</gradient>: {message}"
+  #vip: "<gold>{prefix}{name}&r: {message}</gold>"
+  #helper: "<aqua>{prefix}{name}&r: {message}</aqua>"
 
 # ----------------------
 # Enable MiniMessage formatting in formats

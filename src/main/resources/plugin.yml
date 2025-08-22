@@ -8,6 +8,6 @@ depend: [LuckPerms]
 softdepend: [PlaceholderAPI]
 commands:
   lpcplus:
-    description: Reload the configuration of LPC+.
+    description: Reload the configuration of LPCPlus.
     permission: lpcplugin.reload
     usage: "Usage: /lpcplus reload"

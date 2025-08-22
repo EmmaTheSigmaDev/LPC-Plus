@@ -1,9 +1,9 @@
-name: ${project.name}
-description: ${project.description}
-version: ${project.version}
-main: ${main.class}
-author: ${author}
-api-version: 1.13
+name: LPCPlus
+description: A chat formatting plugin for LuckPerms
+version: 0.1-SNAPSHOT
+main: me.wikmor.lpc.LPCPlus
+author: [Emma_TheSigma]
+api-version: 1.20
 depend: [LuckPerms]
 softdepend: [PlaceholderAPI]
 commands:

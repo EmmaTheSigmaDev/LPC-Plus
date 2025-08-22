@@ -8,7 +8,7 @@ import net.luckperms.api.LuckPerms;
 import net.luckperms.api.cacheddata.CachedMetaData;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;Updated to PaperMC
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;

@@ -26,21 +26,20 @@ public final class LPC extends JavaPlugin implements Listener {
 	private final MiniMessage miniMessage = MiniMessage.miniMessage();
 	private final LegacyComponentSerializer legacySerializer =
 			LegacyComponentSerializer.builder()
-					.character('&') // & color codes
-					.hexColors()    // &#rrggbb
-					.useUnusualXRepeatedCharacterHexFormat() // &x&R&R&G&G&B&B
+					.character('&')
+					.hexColors()
+					.useUnusualXRepeatedCharacterHexFormat()
 					.build();
 
 	@Override
 	public void onEnable() {
 		this.luckPerms = getServer().getServicesManager().load(LuckPerms.class);
-
 		saveDefaultConfig();
 		getServer().getPluginManager().registerEvents(this, this);
 	}
 
 	@Override
-	public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command command, final @NotNull String label, final String[] args) {
+	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
 		if (args.length == 1 && "reload".equalsIgnoreCase(args[0])) {
 			reloadConfig();
 			sender.sendMessage("§aLPC has been reloaded.");
@@ -50,7 +49,7 @@ public final class LPC extends JavaPlugin implements Listener {
 	}
 
 	@Override
-	public List<String> onTabComplete(final @NotNull CommandSender sender, final @NotNull Command command, final @NotNull String alias, final String[] args) {
+	public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
 		if (args.length == 1) {
 			return Collections.singletonList("reload");
 		}
@@ -67,49 +66,40 @@ public final class LPC extends JavaPlugin implements Listener {
 		CachedMetaData metaData = this.luckPerms.getPlayerAdapter(Player.class).getMetaData(player);
 		String group = metaData.getPrimaryGroup();
 
-		// Pull format from config
 		String format = getConfig().getString("group-formats." + group,
 				getConfig().getString("chat-format", "<gray><name>: <message>"));
 
-		// Replace placeholders
+		String displayName = LegacyComponentSerializer.legacySection().serialize(player.displayName());
+
 		format = format
 				.replace("{prefix}", metaData.getPrefix() != null ? metaData.getPrefix() : "")
 				.replace("{suffix}", metaData.getSuffix() != null ? metaData.getSuffix() : "")
 				.replace("{world}", player.getWorld().getName())
 				.replace("{name}", player.getName())
-				.replace("{displayname}", player.getDisplayName());
+				.replace("{displayname}", displayName);
 
-		// PlaceholderAPI support
 		if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
 			format = PlaceholderAPI.setPlaceholders(player, format);
 		}
 
-		// --- Player message parsing ---
+		// --- Parse player message ---
 		Component messageComponent;
 		if (player.hasPermission("lpc.minimessage") && rawMessage.contains("<")) {
-			// Full MiniMessage support
 			messageComponent = miniMessage.deserialize(rawMessage);
 		} else if (player.hasPermission("lpc.legacycolor") || player.hasPermission("lpc.hex")) {
-			// Legacy & + hex codes
 			messageComponent = legacySerializer.deserialize(rawMessage);
 		} else {
-			// Plain text only
 			messageComponent = Component.text(rawMessage);
 		}
 
-		// --- Format parsing (MiniMessage OR Legacy) ---
-		Component formatComponent;
-		if (format.contains("<")) {
-			formatComponent = miniMessage.deserialize(format);
-		} else {
-			formatComponent = legacySerializer.deserialize(format);
-		}
+		// --- Parse format string ---
+		Component formatComponent = format.contains("<")
+				? miniMessage.deserialize(format)
+				: legacySerializer.deserialize(format);
 
-		// Replace {message} inside format with parsed message component
 		Component finalMessage = formatComponent.replaceText(builder ->
 				builder.matchLiteral("{message}").replacement(messageComponent));
 
-		// Send to all players
 		getServer().sendMessage(finalMessage);
 	}
 }

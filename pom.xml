@@ -85,7 +85,7 @@
 				
 				<!-- We use latest snapshot here for modern Java compatibility. Change version to the latest one from
 					 https://repository.apache.org/content/repositories/snapshots/org/apache/maven/plugins/maven-shade-plugin/ -->
-				<version>3.3.1-SNAPSHOT</version>
+				<version>3.6.1-SNAPSHOT</version>
 				<executions>
 					<execution>
 						<phase>package</phase>

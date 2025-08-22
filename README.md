@@ -34,6 +34,12 @@ Upon first run, LPCPlus generates a `config.yml` file. You can customize:
 - **MiniMessage in Formats:** Enable or disable MiniMessage parsing in formats.  
 - **PlaceholderAPI Support:** Toggle support for PlaceholderAPI placeholders.  
 
+LPCPlus
+Copyright (C) 2025 [Emma_TheSigma]
+
+This software is released into the public domain under the Unlicense.
+Full text: http://unlicense.org/
+
 Example `config.yml`:
 
 ```yaml
@@ -42,10 +48,3 @@ group-formats:
   admin: "<bold><red>{prefix}{name}: {message}</bold>"
   mod: "<yellow>{prefix}{name}: {message}</yellow>"
 allow-minimessage-in-formats: true
-
-LPCPlus
-Copyright (C) 2025 [Emma_TheSigma]
-
-This software is released into the public domain under the Unlicense.
-Full text: http://unlicense.org/
-

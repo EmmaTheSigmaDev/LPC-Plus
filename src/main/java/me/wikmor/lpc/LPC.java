@@ -94,11 +94,9 @@ public final class LPC extends JavaPlugin implements Listener {
 			formatComponent = legacySerializer.deserialize(format);
 		}
 
-		final Matcher matcher = HEX_PATTERN.matcher(message);
-		final StringBuffer buffer = new StringBuffer(message.length() + 4 * 8);
-
-		while (matcher.find()) {
-			final String group = matcher.group(1);
+		// Replace {message} inside format with parsed message component
+		Component finalMessage = formatComponent.replaceText(builder ->
+				builder.matchLiteral("{message}").replacement(messageComponent));
 
 			matcher.appendReplacement(buffer, colorChar + "x"
 					+ colorChar + group.charAt(0) + colorChar + group.charAt(1)

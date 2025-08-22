@@ -1,3 +1,9 @@
+/*
+ * LPCPlus - A modern chat formatting plugin for Minecraft servers using LuckPerms
+ * Released into the public domain under the Unlicense
+ * http://unlicense.org/
+ * Author: Emma_TheSigma
+ */
 package me.wikmor.lpc;
 
 import me.clip.placeholderapi.PlaceholderAPI;

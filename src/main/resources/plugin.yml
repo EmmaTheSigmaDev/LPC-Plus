@@ -6,6 +6,7 @@ author: [Emma_TheSigma]
 api-version: 1.20
 depend: [LuckPerms]
 softdepend: [PlaceholderAPI]
+website: https://hangar.papermc.io/EmmaTheSigma/LPC-Plus
 commands:
   lpcplus:
     description: Reload the configuration of LPCPlus.

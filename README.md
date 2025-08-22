@@ -42,3 +42,10 @@ group-formats:
   admin: "<bold><red>{prefix}{name}: {message}</bold>"
   mod: "<yellow>{prefix}{name}: {message}</yellow>"
 allow-minimessage-in-formats: true
+
+LPCPlus
+Copyright (C) 2025 [Emma_TheSigma]
+
+This software is released into the public domain under the Unlicense.
+Full text: http://unlicense.org/
+

@@ -1,7 +1,23 @@
-<?xml version="1.0" ?>
-<!DOCTYPE xml>
-<project name="LPC" default="Build">
-	<target name="Build">
-		<jar jarfile="/Users/Wiktor/Test Servers/1.19/plugins/${ant.project.name}.jar" basedir="./target/classes/" includes="**/*"></jar>
+<?xml version="1.0"?>
+<project name="LPCPlus" default="build" basedir=".">
+
+	<property name="build.dir" value="build"/>
+	<property name="classes.dir" value="target/classes"/>
+	<property name="output.jar" value="${build.dir}/LPCPlus.jar"/>
+
+	<!-- Clean old builds -->
+	<target name="clean">
+		<delete dir="${build.dir}"/>
+	</target>
+
+	<!-- Build jar -->
+	<target name="build" depends="clean">
+		<mkdir dir="${build.dir}"/>
+		<jar jarfile="${output.jar}" basedir="${classes.dir}" includes="**/*">
+			<manifest>
+				<attribute name="Main-Class" value="me.wikmor.lpc.LPCPlus"/>
+			</manifest>
+		</jar>
+		<echo message="Built ${output.jar}"/>
 	</target>
 </project>

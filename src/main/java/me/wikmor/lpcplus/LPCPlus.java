@@ -52,6 +52,17 @@ public final class LPCPlus extends JavaPlugin implements Listener {
 
 		saveDefaultConfig();
 		getServer().getPluginManager().registerEvents(this, this);
+
+		// Warn in console and notify online admins if LuckPerms isn't installed
+		if (!hasLuckPerms) {
+			getLogger().warning("LuckPerms is not installed! LPCPlus will use Bukkit fallback for prefixes/suffixes.");
+
+			for (Player p : Bukkit.getOnlinePlayers()) {
+				if (p.hasPermission("lpc.adminnotify")) {
+					p.sendMessage(Component.text("§c[WARNING] LuckPerms is not detected! Using Bukkit fallback prefixes/suffixes."));
+				}
+			}
+		}
 	}
 
 	@Override

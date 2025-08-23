@@ -5,7 +5,7 @@ main: me.wikmor.lpcplus.LPCPlus
 author: Emma_TheSigma
 api-version: 1.20
 softdepend: [PlaceholderAPI, LuckPerms]
-website: https://hangar.papermc.io/EmmaTheSigma/LPC-Plus
+website: https://github.com/EmmaTheSigmaDev/LPC-Plus
 commands:
   lpcplus:
     description: Reload the configuration of LPCPlus.

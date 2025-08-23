@@ -1,0 +1,47 @@
+# LPCPlus Configuration
+# Guide: https://luckperms.net/wiki/Prefixes,-Suffixes-&-Meta
+
+# ----------------------
+# Global default chat format
+# ----------------------
+# Use MiniMessage, hex colors, and placeholders
+chat-format: "<gray>{prefix}<green>{name}</green>&r: {message}"
+
+# ----------------------
+# Group-specific formats
+# ----------------------
+group-formats:
+  default: "<white>{prefix}{name}&r: {message}"
+  admin: "<bold><gradient:red:yellow>{prefix}{name}&r</gradient>: {message}</bold>"
+  #mod: "<gradient:blue:dark_blue>{prefix}{name}&r</gradient>: {message}"
+  #vip: "<gold>{prefix}{name}&r: {message}</gold>"
+  #helper: "<aqua>{prefix}{name}&r: {message}</aqua>"
+
+# ----------------------
+# Enable MiniMessage formatting in formats
+# ----------------------
+allow-minimessage-in-formats: true
+
+# ----------------------
+# Notes on placeholders:
+# ----------------------
+# {message}       - The player's chat message
+# {name}          - Player's username
+# {displayname}   - Player's display name / nickname
+# {world}         - Name of the player's world
+# {prefix}        - Player's highest priority LuckPerms prefix
+# {suffix}        - Player's highest priority LuckPerms suffix
+# {prefixes}      - Concatenated prefixes sorted by priority
+# {suffixes}      - Concatenated suffixes sorted by priority
+# {username-color} - Player's username color
+# {message-color}  - Player's message color
+
+# ----------------------
+# Permissions
+# ----------------------
+# lpcplus.reload              - Reload plugin config
+# lpc.chat.placeholders       - Enable PlaceholderAPI in messages
+# lpc.minimessage             - Allow MiniMessage formatting in messages
+# lpc.legacycolor             - Allow legacy & color codes
+# lpc.hex                     - Allow hex codes (e.g., &#FF5733)
+# lpc.format.minimessage      - Allow MiniMessage in format strings

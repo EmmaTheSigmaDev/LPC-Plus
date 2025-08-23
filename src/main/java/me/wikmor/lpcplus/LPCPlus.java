@@ -24,150 +24,183 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public final class LPCPlus extends JavaPlugin implements Listener {
 
-	private LuckPerms luckPerms;
-	private boolean hasLuckPerms = false;
-	private boolean hasPAPI = false;
+    private LuckPerms luckPerms;
+    private boolean hasLuckPerms = false;
+    private boolean hasPAPI = false;
 
-	private final MiniMessage miniMessage = MiniMessage.miniMessage();
-	private final LegacyComponentSerializer legacySerializer =
-			LegacyComponentSerializer.builder()
-					.character('&')
-					.hexColors() // supports &#RRGGBB
-					.useUnusualXRepeatedCharacterHexFormat()
-					.build();
+    private final MiniMessage miniMessage = MiniMessage.miniMessage();
+    private final LegacyComponentSerializer legacySerializer =
+            LegacyComponentSerializer.builder()
+                    .character('&')
+                    .hexColors() // supports &#RRGGBB
+                    .useUnusualXRepeatedCharacterHexFormat()
+                    .build();
 
-	@Override
-	public void onEnable() {
-		// Check for LuckPerms
-		luckPerms = getServer().getServicesManager().load(LuckPerms.class);
-		hasLuckPerms = luckPerms != null;
+    @Override
+    public void onEnable() {
+        // Check for LuckPerms
+        luckPerms = getServer().getServicesManager().load(LuckPerms.class);
+        hasLuckPerms = luckPerms != null;
 
-		// Check for PlaceholderAPI
-		hasPAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
+        // Check for PlaceholderAPI
+        hasPAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
 
-		saveDefaultConfig();
-		getServer().getPluginManager().registerEvents(this, this);
+        saveDefaultConfig();
+        getServer().getPluginManager().registerEvents(this, this);
 
-		// Warn in console and notify online admins if LuckPerms isn't installed
-		if (!hasLuckPerms) {
-			getLogger().warning("LuckPerms is not installed! LPCPlus will use Bukkit fallback for prefixes/suffixes.");
+        // Warn in console and notify online admins if LuckPerms isn't installed
+        if (!hasLuckPerms) {
+            getLogger().warning("LuckPerms is not installed! LPCPlus will use Bukkit fallback for prefixes/suffixes.");
 
-			for (Player p : Bukkit.getOnlinePlayers()) {
-				if (p.hasPermission("lpc.adminnotify")) {
-					p.sendMessage(Component.text("§c[WARNING] LuckPerms is not detected! Using Bukkit fallback prefixes/suffixes."));
-				}
-			}
-		}
-	}
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (p.hasPermission("lpc.adminnotify")) {
+                    p.sendMessage(Component.text("§c[WARNING] LuckPerms is not detected! Using Bukkit fallback prefixes/suffixes."));
+                }
+            }
+        }
+    }
 
-	@Override
-	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-		if (args.length == 1 && "reload".equalsIgnoreCase(args[0])) {
-			reloadConfig();
-			sender.sendMessage("§aLPCPlus has been reloaded.");
-			return true;
-		}
-		return false;
-	}
+    @Override
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+        if (args.length == 0) {
+            sender.sendMessage("§aLPCPlus v" + getPluginMeta().getVersion() + " by " + getPluginMeta().getAuthors());
+            sender.sendMessage("§7Commands: /lpcplus reload | /lpcplus about | /lpcplus version");
+            return true;
+        }
 
-	@Override
-	public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
-		if (args.length == 1 && sender.hasPermission("lpc.reload")) {
-			return Collections.singletonList("reload");
-		}
-		return Collections.emptyList();
-	}
+        if (args.length == 1) {
+            switch (args[0].toLowerCase()) {
+                case "reload":
+                    reloadConfig();
+                    sender.sendMessage("§aLPCPlus configuration reloaded.");
+                    return true;
 
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onChat(final AsyncChatEvent event) {
-		event.setCancelled(true);
-		Player player = event.getPlayer();
+                case "about":
+                    sender.sendMessage("§aLPCPlus §7- Modern Chat Formatter");
+                    String website = getPluginMeta().getWebsite();
+                    sender.sendMessage("§7Website: " + (website != null ? website : "N/A"));
+                    return true;
+                case "version":
+                    String version = getPluginMeta().getVersion();
+                    String author = String.join(", ", getPluginMeta().getAuthors());
+                    sender.sendMessage("§eLPCPlus §fversion §b" + version + " §fby §a" + author);
+                    return true;
+            }
+        }
 
-		// ----------------------
-		//  FETCH PREFIX / SUFFIX
-		// ----------------------
-		String prefix;
-		String suffix;
-		String primaryGroup = "default";
+        sender.sendMessage("§cUsage: /lpcplus reload | /lpcplus about");
+        return true;
+    }
 
-		if (hasLuckPerms) {
-			CachedMetaData metaData = luckPerms.getPlayerAdapter(Player.class).getMetaData(player);
-			prefix = metaData.getPrefix() != null ? metaData.getPrefix() : "";
-			suffix = metaData.getSuffix() != null ? metaData.getSuffix() : "";
-			primaryGroup = metaData.getPrimaryGroup();
-		} else {
-			// Fallback: read from config
-			prefix = getConfig().getString("vanilla-groups." + getPlayerGroup(player) + ".prefix", "&7[Player]&r ");
-			suffix = getConfig().getString("vanilla-groups." + getPlayerGroup(player) + ".suffix", "");
-		}
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
+        if (args.length == 1) {
+            List<String> subs = new ArrayList<>();
+            if (sender.hasPermission("lpc.reload")) subs.add("reload");
+            subs.add("about");
+            return subs;
+        }
+        return Collections.emptyList();
+    }
 
-		Component prefixComponent = legacySerializer.deserialize(prefix);
-		Component suffixComponent = legacySerializer.deserialize(suffix);
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onChat(final AsyncChatEvent event) {
+        event.setCancelled(true);
+        Player player = event.getPlayer();
 
-		// ----------------------
-		//  FORMAT
-		// ----------------------
-		String world = player.getWorld().getName();
-		String name = player.getName();
-		String displayName = legacySerializer.serialize(player.displayName());
+        // ----------------------
+        //  FETCH PREFIX / SUFFIX
+        // ----------------------
+        String prefix;
+        String suffix;
+        String primaryGroup = "default";
 
-		String format = getConfig().getString("group-formats." + primaryGroup,
-				getConfig().getString("chat-format", "{prefix}{displayname}{suffix}: {message}"));
+        if (hasLuckPerms) {
+            CachedMetaData metaData = luckPerms.getPlayerAdapter(Player.class).getMetaData(player);
+            prefix = metaData.getPrefix() != null ? metaData.getPrefix() : "";
+            suffix = metaData.getSuffix() != null ? metaData.getSuffix() : "";
+            primaryGroup = metaData.getPrimaryGroup();
+        } else {
+            // Fallback: read from config
+            prefix = getConfig().getString("vanilla-groups." + getPlayerGroup(player) + ".prefix", "&7[Player]&r ");
+            suffix = getConfig().getString("vanilla-groups." + getPlayerGroup(player) + ".suffix", "");
+        }
 
-		if (hasPAPI) {
-			format = PlaceholderAPI.setPlaceholders(player, format);
-		}
+        Component prefixComponent = parseFormatted(prefix);
+        Component suffixComponent = parseFormatted(suffix);
 
-		Component formatComponent = legacySerializer.deserialize(format)
-				.replaceText(builder -> builder.matchLiteral("{prefix}").replacement(prefixComponent))
-				.replaceText(builder -> builder.matchLiteral("{suffix}").replacement(suffixComponent))
-				.replaceText(builder -> builder.matchLiteral("{name}").replacement(name))
-				.replaceText(builder -> builder.matchLiteral("{displayname}").replacement(displayName))
-				.replaceText(builder -> builder.matchLiteral("{world}").replacement(world));
+        // ----------------------
+        //  FORMAT
+        // ----------------------
+        String world = player.getWorld().getName();
+        String name = player.getName();
+        String displayName = legacySerializer.serialize(player.displayName());
 
-		// ----------------------
-		//  MESSAGE
-		// ----------------------
-		String rawMessage = legacySerializer.serialize(event.message());
-		if (hasPAPI && player.hasPermission("lpc.chat.placeholders")) {
-			rawMessage = PlaceholderAPI.setPlaceholders(player, rawMessage);
-		}
+        String format = getConfig().getString("group-formats." + primaryGroup,
+                getConfig().getString("chat-format", "{prefix}{displayname}{suffix}: {message}"));
 
-		Component messageComponent = parseMessage(player, rawMessage);
+        if (hasPAPI) {
+            format = PlaceholderAPI.setPlaceholders(player, format);
+        }
 
-		// Replace {message} placeholder
-		Component finalMessage = formatComponent.replaceText(builder ->
-				builder.matchLiteral("{message}").replacement(messageComponent));
+        Component formatComponent = parseFormatted(format)
+                .replaceText(builder -> builder.matchLiteral("{prefix}").replacement(prefixComponent))
+                .replaceText(builder -> builder.matchLiteral("{suffix}").replacement(suffixComponent))
+                .replaceText(builder -> builder.matchLiteral("{name}").replacement(Component.text(name)))
+                .replaceText(builder -> builder.matchLiteral("{displayname}").replacement(Component.text(displayName)))
+                .replaceText(builder -> builder.matchLiteral("{world}").replacement(Component.text(world)));
 
-		// ----------------------
-		//  SEND
-		// ----------------------
-		for (Audience viewer : event.viewers()) {
-			viewer.sendMessage(finalMessage);
-		}
-	}
+        // ----------------------
+        //  MESSAGE
+        // ----------------------
+        String rawMessage = legacySerializer.serialize(event.message());
+        if (hasPAPI && player.hasPermission("lpc.chat.placeholders")) {
+            rawMessage = PlaceholderAPI.setPlaceholders(player, rawMessage);
+        }
 
-	private Component parseMessage(Player player, String rawMessage) {
-		rawMessage = rawMessage.replace('§', '&');
+        Component messageComponent = parseMessage(player, rawMessage);
 
-		if (player.hasPermission("lpc.minimessage") && rawMessage.contains("<")) {
-			return miniMessage.deserialize(rawMessage);
-		} else if (player.hasPermission("lpc.legacycolor") || player.hasPermission("lpc.hex")) {
-			return legacySerializer.deserialize(rawMessage);
-		} else {
-			return Component.text(rawMessage);
-		}
-	}
+        // Replace {message} placeholder
+        Component finalMessage = formatComponent.replaceText(builder ->
+                builder.matchLiteral("{message}").replacement(messageComponent));
 
-	// Determine fallback group based on vanilla permissions
-	private String getPlayerGroup(Player player) {
-		if (player.hasPermission("group.admin")) return "admin";
-		if (player.hasPermission("group.mod")) return "mod";
-		return "default";
-	}
+        // ----------------------
+        //  SEND
+        // ----------------------
+        for (Audience viewer : event.viewers()) {
+            viewer.sendMessage(finalMessage);
+        }
+    }
+
+    private Component parseFormatted(String input) {
+        if (input == null || input.isEmpty()) return Component.empty();
+        if (input.contains("<")) {
+            return miniMessage.deserialize(input);
+        } else {
+            return legacySerializer.deserialize(input);
+        }
+    }
+
+    private Component parseMessage(Player player, String rawMessage) {
+        rawMessage = rawMessage.replace('§', '&');
+
+        if (player.hasPermission("lpc.minimessage") && rawMessage.contains("<")) {
+            return miniMessage.deserialize(rawMessage);
+        } else if (player.hasPermission("lpc.legacycolor") || player.hasPermission("lpc.hex")) {
+            return legacySerializer.deserialize(rawMessage);
+        } else {
+            return Component.text(rawMessage);
+        }
+    }
+
+    // Determine fallback group based on vanilla permissions
+    private String getPlayerGroup(Player player) {
+        if (player.hasPermission("group.admin")) return "admin";
+        if (player.hasPermission("group.mod")) return "mod";
+        return "default";
+    }
 }

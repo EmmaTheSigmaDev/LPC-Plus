@@ -36,29 +36,28 @@ public final class LPCPlus extends JavaPlugin implements Listener {
     private final LegacyComponentSerializer legacySerializer =
             LegacyComponentSerializer.builder()
                     .character('&')
-                    .hexColors() // supports &#RRGGBB
+                    .hexColors()
                     .useUnusualXRepeatedCharacterHexFormat()
                     .build();
 
     @Override
     public void onEnable() {
-        // Check for LuckPerms
+        // Hook LuckPerms
         luckPerms = getServer().getServicesManager().load(LuckPerms.class);
         hasLuckPerms = luckPerms != null;
 
-        // Check for PlaceholderAPI
+        // Check PlaceholderAPI
         hasPAPI = Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI");
 
         saveDefaultConfig();
         getServer().getPluginManager().registerEvents(this, this);
 
-        // Warn in console and notify online admins if LuckPerms isn't installed
         if (!hasLuckPerms) {
             getLogger().warning("LuckPerms is not installed! LPCPlus will use Bukkit fallback for prefixes/suffixes.");
-
+            Component warn = miniMessage.deserialize("<red>[WARNING] LuckPerms is not detected! Using Bukkit fallback prefixes/suffixes.");
             for (Player p : Bukkit.getOnlinePlayers()) {
                 if (p.hasPermission("lpc.adminnotify")) {
-                    p.sendMessage(Component.text("§c[WARNING] LuckPerms is not detected! Using Bukkit fallback prefixes/suffixes."));
+                    p.sendMessage(warn);
                 }
             }
         }
@@ -67,32 +66,36 @@ public final class LPCPlus extends JavaPlugin implements Listener {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (args.length == 0) {
-            sender.sendMessage("§aLPCPlus v" + getPluginMeta().getVersion() + " by " + getPluginMeta().getAuthors());
-            sender.sendMessage("§7Commands: /lpcplus reload | /lpcplus about | /lpcplus version");
+            sender.sendMessage(miniMessage.deserialize("<green>LPCPlus v"
+                    + getPluginMeta().getVersion()
+                    + " <gray>by "
+                    + String.join(", ", getPluginMeta().getAuthors())));
+            sender.sendMessage(miniMessage.deserialize("<gray>Commands: <yellow>/lpcplus reload | /lpcplus about | /lpcplus version"));
             return true;
         }
 
-        if (args.length == 1) {
-            switch (args[0].toLowerCase()) {
-                case "reload":
-                    reloadConfig();
-                    sender.sendMessage("§aLPCPlus configuration reloaded.");
-                    return true;
-
-                case "about":
-                    sender.sendMessage("§aLPCPlus §7- Modern Chat Formatter");
-                    String website = getPluginMeta().getWebsite();
-                    sender.sendMessage("§7Website: " + (website != null ? website : "N/A"));
-                    return true;
-                case "version":
-                    String version = getPluginMeta().getVersion();
-                    String author = String.join(", ", getPluginMeta().getAuthors());
-                    sender.sendMessage("§eLPCPlus §fversion §b" + version + " §fby §a" + author);
-                    return true;
+        switch (args[0].toLowerCase()) {
+            case "reload" -> {
+                reloadConfig();
+                sender.sendMessage(miniMessage.deserialize("<green>LPCPlus configuration reloaded."));
+                return true;
+            }
+            case "about" -> {
+                sender.sendMessage(miniMessage.deserialize("<green>LPCPlus <gray>- Modern Chat Formatter"));
+                String website = getPluginMeta().getWebsite();
+                if (website != null) {
+                    sender.sendMessage(miniMessage.deserialize("<gray>Website: <aqua>" + website));
+                }
+                return true;
+            }
+            case "version" -> {
+                sender.sendMessage(miniMessage.deserialize("<yellow>LPCPlus <white>version <aqua>"
+                        + getPluginMeta().getVersion() + " <white>by <green>" + String.join(", ", getPluginMeta().getAuthors())));
+                return true;
             }
         }
 
-        sender.sendMessage("§cUsage: /lpcplus reload | /lpcplus about");
+        sender.sendMessage(miniMessage.deserialize("<red>Usage: /lpcplus reload | /lpcplus about | /lpcplus version"));
         return true;
     }
 
@@ -102,6 +105,7 @@ public final class LPCPlus extends JavaPlugin implements Listener {
             List<String> subs = new ArrayList<>();
             if (sender.hasPermission("lpc.reload")) subs.add("reload");
             subs.add("about");
+            subs.add("version");
             return subs;
         }
         return Collections.emptyList();
@@ -113,7 +117,7 @@ public final class LPCPlus extends JavaPlugin implements Listener {
         Player player = event.getPlayer();
 
         // ----------------------
-        //  FETCH PREFIX / SUFFIX
+        // FETCH PREFIX / SUFFIX
         // ----------------------
         String prefix;
         String suffix;
@@ -121,11 +125,10 @@ public final class LPCPlus extends JavaPlugin implements Listener {
 
         if (hasLuckPerms) {
             CachedMetaData metaData = luckPerms.getPlayerAdapter(Player.class).getMetaData(player);
-            prefix = metaData.getPrefix() != null ? metaData.getPrefix() : "";
-            suffix = metaData.getSuffix() != null ? metaData.getSuffix() : "";
+            prefix = Optional.ofNullable(metaData.getPrefix()).orElse("");
+            suffix = Optional.ofNullable(metaData.getSuffix()).orElse("");
             primaryGroup = metaData.getPrimaryGroup();
         } else {
-            // Fallback: read from config
             prefix = getConfig().getString("vanilla-groups." + getPlayerGroup(player) + ".prefix", "&7[Player]&r ");
             suffix = getConfig().getString("vanilla-groups." + getPlayerGroup(player) + ".suffix", "");
         }
@@ -134,7 +137,7 @@ public final class LPCPlus extends JavaPlugin implements Listener {
         Component suffixComponent = parseFormatted(suffix);
 
         // ----------------------
-        //  FORMAT
+        // FORMAT
         // ----------------------
         String world = player.getWorld().getName();
         String name = player.getName();
@@ -155,21 +158,23 @@ public final class LPCPlus extends JavaPlugin implements Listener {
                 .replaceText(builder -> builder.matchLiteral("{world}").replacement(Component.text(world)));
 
         // ----------------------
-        //  MESSAGE
+        // MESSAGE
         // ----------------------
-        String rawMessage = legacySerializer.serialize(event.message());
+        Component messageComponent = event.message(); // Paper already provides Component
+
         if (hasPAPI && player.hasPermission("lpc.chat.placeholders")) {
-            rawMessage = PlaceholderAPI.setPlaceholders(player, rawMessage);
+            String raw = LegacyComponentSerializer.legacySection().serialize(messageComponent);
+            raw = PlaceholderAPI.setPlaceholders(player, raw);
+            messageComponent = parseMessage(player, raw);
         }
 
-        Component messageComponent = parseMessage(player, rawMessage);
-
         // Replace {message} placeholder
+        Component finalMessageComponent = messageComponent;
         Component finalMessage = formatComponent.replaceText(builder ->
-                builder.matchLiteral("{message}").replacement(messageComponent));
+                builder.matchLiteral("{message}").replacement(finalMessageComponent));
 
         // ----------------------
-        //  SEND
+        // SEND
         // ----------------------
         for (Audience viewer : event.viewers()) {
             viewer.sendMessage(finalMessage);
@@ -178,16 +183,15 @@ public final class LPCPlus extends JavaPlugin implements Listener {
 
     private Component parseFormatted(String input) {
         if (input == null || input.isEmpty()) return Component.empty();
-        if (input.contains("<")) {
+        try {
             return miniMessage.deserialize(input);
-        } else {
+        } catch (Exception ignored) {
             return legacySerializer.deserialize(input);
         }
     }
 
     private Component parseMessage(Player player, String rawMessage) {
         rawMessage = rawMessage.replace('§', '&');
-
         if (player.hasPermission("lpc.minimessage") && rawMessage.contains("<")) {
             return miniMessage.deserialize(rawMessage);
         } else if (player.hasPermission("lpc.legacycolor") || player.hasPermission("lpc.hex")) {
@@ -197,7 +201,6 @@ public final class LPCPlus extends JavaPlugin implements Listener {
         }
     }
 
-    // Determine fallback group based on vanilla permissions
     private String getPlayerGroup(Player player) {
         if (player.hasPermission("group.admin")) return "admin";
         if (player.hasPermission("group.mod")) return "mod";

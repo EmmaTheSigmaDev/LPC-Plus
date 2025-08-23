@@ -37,7 +37,7 @@ public final class LPCPlus extends JavaPlugin implements Listener {
 	private final LegacyComponentSerializer legacySerializer =
 			LegacyComponentSerializer.builder()
 					.character('&')
-					.hexColors()
+					.hexColors() // supports &#RRGGBB
 					.useUnusualXRepeatedCharacterHexFormat()
 					.build();
 

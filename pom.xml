@@ -4,15 +4,15 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>me.wikmor</groupId>
-	<artifactId>lpc</artifactId>
-	<name>LPC</name>
-	<description>A chat formatting plugin for LuckPerms.</description>
+	<artifactId>lpcplus</artifactId>
+	<name>LPCPlus</name>
+	<description>A chat formatting plugin for LuckPerms. A fork of LPC</description>
 	<version>3.6.2</version>
 	<packaging>jar</packaging>
 
 	<properties>
 		<author>wikmor</author>
-		<main.class>me.wikmor.lpc.LPC</main.class>
+		<main.class>me.wikmor.lpcplus.LPC</main.class>
 		<java.version>21</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>

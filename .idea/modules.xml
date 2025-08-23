@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/lpc.iml" filepath="$PROJECT_DIR$/lpc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lpc.iml" filepath="$PROJECT_DIR$/lpcplus.iml" />
     </modules>
   </component>
 </project>

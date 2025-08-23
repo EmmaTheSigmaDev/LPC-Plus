@@ -15,7 +15,7 @@
 		<mkdir dir="${build.dir}"/>
 		<jar jarfile="${output.jar}" basedir="${classes.dir}" includes="**/*">
 			<manifest>
-				<attribute name="Main-Class" value="me.wikmor.lpc.LPCPlus"/>
+				<attribute name="Main-Class" value="me.wikmor.lpcplus.LPCPlus"/>
 			</manifest>
 		</jar>
 		<echo message="Built ${output.jar}"/>

@@ -17,6 +17,17 @@ group-formats:
   #vip: "<gold>{prefix}{name}&r: {message}</gold>"
   #helper: "<aqua>{prefix}{name}&r: {message}</aqua>"
 
+vanilla-groups:
+  admin:
+    prefix: "&c[Admin]&r "
+    suffix: ""
+  mod:
+    prefix: "&2[Mod]&r "
+    suffix: ""
+  default:
+    prefix: "&7[Player]&r "
+    suffix: ""
+
 # ----------------------
 # Enable MiniMessage formatting in formats
 # ----------------------

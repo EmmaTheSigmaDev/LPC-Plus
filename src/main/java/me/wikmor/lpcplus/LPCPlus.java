@@ -91,8 +91,8 @@ public final class LPCPlus extends JavaPlugin implements Listener {
 		// ----------------------
 		//  FETCH PREFIX / SUFFIX
 		// ----------------------
-		String prefix = "";
-		String suffix = "";
+		String prefix;
+		String suffix;
 		String primaryGroup = "default";
 
 		if (hasLuckPerms) {

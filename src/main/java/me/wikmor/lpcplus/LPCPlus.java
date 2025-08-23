@@ -163,4 +163,11 @@ public final class LPCPlus extends JavaPlugin implements Listener {
 			return Component.text(rawMessage);
 		}
 	}
+
+	// Determine fallback group based on vanilla permissions
+	private String getPlayerGroup(Player player) {
+		if (player.hasPermission("group.admin")) return "admin";
+		if (player.hasPermission("group.mod")) return "mod";
+		return "default";
+	}
 }

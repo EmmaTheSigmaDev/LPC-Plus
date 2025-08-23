@@ -101,14 +101,9 @@ public final class LPCPlus extends JavaPlugin implements Listener {
 			suffix = metaData.getSuffix() != null ? metaData.getSuffix() : "";
 			primaryGroup = metaData.getPrimaryGroup();
 		} else {
-			// Fallback: check for vanilla permission-based groups
-			if (player.hasPermission("group.admin")) {
-				prefix = "&c[Admin]&r ";
-			} else if (player.hasPermission("group.mod")) {
-				prefix = "&2[Mod]&r ";
-			} else {
-				prefix = "&7[Player]&r ";
-			}
+			// Fallback: read from config
+			prefix = getConfig().getString("vanilla-groups." + getPlayerGroup(player) + ".prefix", "&7[Player]&r ");
+			suffix = getConfig().getString("vanilla-groups." + getPlayerGroup(player) + ".suffix", "");
 		}
 
 		Component prefixComponent = legacySerializer.deserialize(prefix);
